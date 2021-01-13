@@ -1,0 +1,40 @@
+version: '3.4'
+services:
+
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: learning-docker/laravel:v1
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - redis
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - app-network
+
+  # DB UI management service
+  adminer:
+    image: adminer
+    restart: unless-stopped
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
